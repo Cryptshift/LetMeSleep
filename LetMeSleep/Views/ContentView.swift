@@ -77,10 +77,11 @@ struct ContentView: View {
 
     private var levelSection: some View {
         Section("Level") {
-            LabeledContent("Current level") {
-                Text(monitor.isEnabled ? "\(Int(monitor.level.rounded())) dBFS" : "–")
-                    .monospacedDigit()
-            }
+            LevelMeterView(
+                level: monitor.level,
+                threshold: currentThreshold,
+                isActive: monitor.isEnabled && monitor.status == .listening
+            )
         }
     }
 
