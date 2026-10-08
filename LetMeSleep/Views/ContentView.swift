@@ -17,7 +17,8 @@ struct ContentView: View {
     @AppStorage(SettingsKey.cooldownMinutes) private var cooldownMinutes = SettingsDefault.cooldownMinutes
 
     @State private var showingSettings = false
-    @State private var hasBotToken = KeychainStore.botToken != nil
+    /// Refreshed at launch, on return to the foreground and when Settings closes.
+    @State private var hasBotToken = false
 
     var body: some View {
         NavigationStack {

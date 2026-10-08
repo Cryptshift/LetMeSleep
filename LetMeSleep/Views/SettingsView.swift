@@ -5,7 +5,8 @@ struct SettingsView: View {
 
     @Environment(\.dismiss) private var dismiss
 
-    @State private var botToken = KeychainStore.botToken ?? ""
+    @State private var botToken = ""
+    @State private var didLoadToken = false
     @AppStorage(SettingsKey.userID) private var userID = ""
     @AppStorage(SensitivityLevel.sensitive.thresholdKey) private var sensitiveThreshold = SensitivityLevel.sensitive.defaultThreshold
     @AppStorage(SensitivityLevel.normal.thresholdKey) private var normalThreshold = SensitivityLevel.normal.defaultThreshold
@@ -41,7 +42,14 @@ struct SettingsView: View {
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
                 .onChange(of: botToken) { _, newValue in
+                    guard didLoadToken else { return }
                     KeychainStore.setBotToken(newValue)
+                }
+                .onAppear {
+                    // Read the Keychain once, not on every re-render of the parent.
+                    guard !didLoadToken else { return }
+                    botToken = KeychainStore.botToken ?? ""
+                    didLoadToken = true
                 }
             TextField("Recipient user ID", text: $userID)
                 .keyboardType(.numberPad)

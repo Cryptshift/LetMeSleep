@@ -169,6 +169,10 @@ final class SoundMonitor {
         try? session.setActive(false, options: .notifyOthersOnDeactivation)
     }
 
+    /// Re-activates the session and recorder after an interruption or reset.
+    /// If that fails we stay "paused" and try again on the next interruption-ended
+    /// notification or when the app comes back to the foreground, rather than
+    /// silently giving up for the rest of the night.
     private func resume() {
         do {
             try activateSession()
@@ -187,9 +191,11 @@ final class SoundMonitor {
                 startSampling()
             }
         } catch {
-            teardown()
-            isEnabled = false
-            status = .failed("Couldn't resume listening: \(error.localizedDescription)")
+            recorder?.stop()
+            recorder = nil
+            status = .interrupted
+            level = DecibelMath.floor
+            decision = .quiet
         }
     }
 
